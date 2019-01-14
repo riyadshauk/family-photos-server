@@ -1,5 +1,6 @@
 -- Postgres alter script (only run first time! may overwrite things...)
 CREATE DATABASE photodb;
+\connect photodb;
 CREATE TABLE users ( -- note: `user` is a reserved keyword in Postgres SQL
     user_id bigserial primary key,
     email text NOT NULL,
