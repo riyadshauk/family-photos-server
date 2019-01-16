@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const tokenAuth = require('../helpers/token-auth');
 const errorLogger = require('../helpers/functions').errorLogger;
+const logger = require('../helpers/functions').logger;
 
 const parseLocalFilePath = req => (req.params || {})[0] ? (req.params[0] || '').substring(1) : '';
 
@@ -36,14 +37,14 @@ router.use((req, res, next) => {
 });
 
 /**
- * @todo query specific files like /photos/a/b/c?q=listing to refer to grab all files in the subdirectory structure: a > b > c
+ * Queries specific files like /photos/a/b/c?q=listing to refer to grab all files in the subdirectory structure: a > b > c
  */
 router.get('*', (req, res) => {
-  console.log('photos router.get *: req.query:', req.query);
-  console.log('photos router.get *: req.params:', req.params);
+  logger('photos router.get *: req.query:', req.query);
+  logger('photos router.get *: req.params:', req.params);
 
   const localFilePath = parseLocalFilePath(req);
-  console.log('localFilePath:', localFilePath);
+  logger('localFilePath:', localFilePath);
 
   if (req.query.q === 'listing') {
     const photosDir = path.join(__dirname, '../photos-root/', localFilePath);

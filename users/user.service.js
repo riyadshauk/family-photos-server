@@ -1,4 +1,5 @@
 const { Client } = require('pg');
+const logger = require('../helpers/functions').logger;
 
 module.exports = {
   authenticate,
@@ -16,7 +17,7 @@ async function authenticate({ email, password }) {
   try {
     const res = await client.query('SELECT password FROM users WHERE email = $1::text', [email]);
     client.end();
-    console.log('res.rows:', res.rows);
+    logger('res.rows:', res.rows);
     const row = res.rows[0] ? res.rows[0] : {};
     if (row.password === password) return email;
     else return false;

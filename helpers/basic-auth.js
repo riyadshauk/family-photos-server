@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const userService = require('../users/user.service');
 const secretKey = require('./credentials');
+const logger = require('../helpers/functions').logger;
 
 async function basicAuth(req, res, next) {
     // check for basic auth header
@@ -12,7 +13,7 @@ async function basicAuth(req, res, next) {
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const [email, password] = credentials.split(':');
-    console.log('client-supplied password:', password);
+    logger('client-supplied password:', password);
     const user = await userService.authenticate({ email, password }); // wait for db to tell whether credentials are authentic
     if (!user) {
         return res.status(401).json({ message: 'Invalid Authentication Credentials' });

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const secretKey = require('./credentials');
+const logger = require('../helpers/functions').logger;
 
 /**
  * @todo Generalize this to be able to grant different levels of authorization (ie, different users may be allowed to access only certain routes) 
@@ -12,11 +13,11 @@ const isValidCredentials = decodedToken => decodedToken.expirationDate > new Dat
 
 const verifyAuthCredentials = (req, res, next, token) => {
   req.authenticated = false;
-  console.log('token from client:', token);
+  logger('token from client:', token);
   try {
     const decodedToken = jwt.verify(token, secretKey);
     req.decodedToken = decodedToken;
-    console.log('decodedToken:', decodedToken);
+    logger('decodedToken:', decodedToken);
     if (isValidCredentials(decodedToken)) {
       req.authenticated = true;
     } else {

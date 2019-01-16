@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "npm start ; mocha server.spec.js",
-    "start": "node server.js"
+    "start": "NODE_ENV=production node server.js",
+    "start:dev": "node server.js"
   },
   "author": "Riyad Shauk",
   "license": "MIT",
