@@ -90,7 +90,7 @@ describe(`Simple webserver black-box tests`, () => {
           done();
         });
       });
-      it(`should send 403 Forbidden status code when valid token provided for non-jpg file`, (done) => {
+      it(`should send 403 Forbidden status code when valid token provided for non-{jpeg,video} (ie: .txt) file`, (done) => {
         axios({
           method: 'post',
           url: `http://localhost:${constants.port}/login`,
@@ -182,6 +182,32 @@ describe(`Simple webserver black-box tests`, () => {
             `http://localhost:${constants.port}/photos/demo/test.JPG?token=${token}`,
           ).then((res) => {
             expect(res.status === 200);
+            done();
+          });
+        }).catch((err) => {
+          expect(false);
+          done(err.stack);
+        });
+      });
+      it(`should send 403 Forbidden status code when valid token provided but attempting to access parent directory in filesystem`, (done) => {
+        axios({
+          method: 'post',
+          url: `http://localhost:${constants.port}/login`,
+          auth: {
+            username: constants.test.user,
+            password: constants.test.passwordHash,
+          },
+        })
+        .then((res) => {
+          const token = res.data ? res.data.token : '';
+          const status = res.status;
+          axios.get(
+            `http://localhost:${constants.port}/photos/demo/../test.JPG?token=${token}`,
+          ).then((res) => {
+            expect(false);
+            done(new Error().stack);
+          }).catch((err) => {
+            expect(err.response.status === 403);
             done();
           });
         }).catch((err) => {

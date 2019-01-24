@@ -9,6 +9,7 @@ const errorHandler = require('./helpers/error-handler');
 
 const loginRouter = require('./routes/login');
 const photosRouter = require('./routes/photos');
+const uploadRouter = require('./routes/upload');
 
 // global middlewares
 app.use(cors()); // disable CORS (for local development)
@@ -19,6 +20,7 @@ app.use(errorHandler);
 // api routes
 app.use(`${pathPrefix}/login`, loginRouter);
 app.use(`${pathPrefix}/photos`, photosRouter);
+app.use(`${pathPrefix}/upload`, uploadRouter);
 
 // start server
 const server = app.listen(port, () => {
