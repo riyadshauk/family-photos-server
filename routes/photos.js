@@ -20,7 +20,7 @@ router.use((req, res, next) => {
 /**
  * Queries specific files like /photos/a/b/c?q=listing to refer to grab all files in the subdirectory structure: a > b > c
  */
-router.get('*', async (req, res) => {
+router.get('*', async (req, res, next) => {
   const localFilePath = parseLocalFilePath(req);
   if (localFilePath.includes('..')) { // harden filesystem access
     res.status(403).json({ message: 'Unauthorized: You may not attempt to navigate to arbitrary locations on the filesystem.' });

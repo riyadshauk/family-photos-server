@@ -17,7 +17,7 @@ const basicAuth = require('../helpers/basic-auth');
 const store = new ExpressBrute.MemoryStore(); // stores state locally, don't use this in production
 const bruteforce = new ExpressBrute(store, { freeRetries: 10 }); // need to have lots of retries so can successfully pass server tests
 
-router.post('/', bruteforce.prevent, basicAuth, (req, res) => { // uses basic auth to log in
+router.post('/', bruteforce.prevent, basicAuth, (req, res, next) => { // uses basic auth to log in
   res.send(JSON.stringify({ token: req.token }));
 });
 

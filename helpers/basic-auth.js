@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const userService = require('../users/user.service');
+const userService = require('./user.service');
 const secretKey = require('./credentials');
 const logger = require('../helpers/functions').logger;
 

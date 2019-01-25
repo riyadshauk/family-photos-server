@@ -1,5 +1,4 @@
 const constants = {};
-constants.inProduction = false; // catch-all
 constants.port = process.env.PORT || 8081;
 constants.pathPrefix = process.env.NODE_ENV === 'production' || constants.inProduction ? '/photosapi' : ''; // in case we want to treat a specific path as the root (ie: riyadshauk.com/photos -> pathPrefix = '/photos')
 constants.test = { // to the world: this is just for testing : P

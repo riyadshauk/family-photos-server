@@ -3,3 +3,7 @@ node_modules
 playground
 **/*.JPG
 **/*.MOV
+**/*.jpeg
+uploads
+logs
+**/*.log

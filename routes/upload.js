@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const bodyParser = require('body-parser');
 const express = require('express');
 const multer  = require('multer');
 const fileType = require('file-type');
@@ -16,11 +15,15 @@ const fsWrapper = require('../helpers/fs-wrapper');
 
 router.use(tokenAuth); // uses bearer token to secure sensitive / specified API routes
 
- /**
-  * Limits total size of a file upload
-  * @todo add test case for this
-  */
+/**
+ * Limits total size of a file upload
+ * @todo add test case for this
+ */
 const maxSize = 300 * Math.pow(2, 20)  // 300 MiB
+/**
+ * @property dest is a location where the upload will incrementally stream to, in chunks 
+ * (but we may rename and save the file elsewhere, upon successful upload of valid file).
+ */
 const upload = multer({ dest: 'uploads/', limits: { fileSize: maxSize } });
 
 const maxFileUploads = 10;
@@ -32,6 +35,7 @@ const maxFileUploads = 10;
  * magic numbers / library for that
  * 
  * @todo test this upload functionality
+ * @todo look into using an open source antivirus scanner or something to that extent (to check portions of the file past the initial bytes)
  * 
  * @see https://github.com/expressjs/multer
  */
@@ -57,26 +61,49 @@ router.post('/', upload.single('photo'), async (req, res) => {
   src.on('readable', async () => {
     let chunk;
     while (null !== (chunk = src.read(fileType.minimumBytes))) {
-      logger(`Received ${chunk.length} bytes of data.`);
       const photoType = fileType(chunk);
-      // src.destroy();
-      logger('photoType:', photoType);
       if (photoType && !constants.allowedMIMETypes.has(photoType.mime)) {
         try {
-          await fsWrapper.unlink(destFilePath);
-          res.status(403).json({ message: '403 Unauthorized: Invalid filetype provided! Only images and videos may be uploaded. All traces of file upload have been removed from the filesystem.' });
+          res.status(403).json({ message: '403 Unauthorized: Invalid filetype provided! Only images and videos may be uploaded. The file has not been uploaded.' });
         } catch (err) {
           errorLogger(err);
           res.status(500).json({ message: '500 – Invalid file type / Server Error.' }); // @todo test this case / when it happens
+        } finally {
+          /**
+           * @note At this point, we have closed the stream by sending a response back to the client.
+           * So we do the following two steps:
+           * • We remove the partially downloaded file from the destination folder 
+           * (the destination file cannot be removed while the stream is still open).
+           * • We remove the partially downloaded file from the uploads directory 
+           * (removing it above would implicitly send a response back to the client).
+           * Note that we may do these two steps in either order, since the stream is closed.
+           * @beware If these steps are done in the try-catch blocks,
+           * unhandled exceptions are thrown.
+           */
+          fsWrapper.unlink(destFilePath);   // remove partial file in destination directory
+          fsWrapper.unlink(req.file.path);  // remove partial file in upload directory
         }
+        /**
+         * @note This is important, otherwise the stream doesn't close and may lead to an error being thrown
+         * The throwable would trigger due to Express, ie: 
+         * `Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client`
+         * (since the 'end' event is fired after 'readable', resulting in an attempt to send two client responses)
+         */
+        src.destroy();
       }
     }
   });
+  /**
+   * @note While hardening security and adding user priveleges, do not yet remove the files that get uploaded
+   */
   src.on('end', () => {
+    // fsWrapper.unlink(req.file.path);  // remove superfluous copy of file from upload directory
     res.status(201).json({ message: `Photo (${req.query.fileName}) successfully uploaded & saved to back-end` });
   });
   src.on('error', (err) => {
+    // fsWrapper.unlink(req.file.path);  // remove (superfluous?) copy of file from upload directory
     res.status(500).json({ message: '500 Server Error' });
+    errorLogger(err);
   });
 });
 module.exports = router;

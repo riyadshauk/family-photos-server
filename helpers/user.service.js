@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-const logger = require('../helpers/functions').logger;
+const logger = require('./functions').logger;
 
 module.exports = {
   authenticate,
