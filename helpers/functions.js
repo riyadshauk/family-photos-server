@@ -3,7 +3,7 @@ const path = require('path');
 const winston = require('winston');
 const winstonLogger = require('./logger').logger;
 
-const logger = (...args) => process.env.NODE_ENV !== 'production' ? winstonLogger.info(args.join('')) : undefined;
+const logger = (...args) => process.env.NODE_ENV !== 'production' ? winstonLogger.info(args.join(' ')) : undefined;
 const errorLogger = (err) => winstonLogger.error(err ? err.stack || err : new Error().stack);
 const setupErrorHandling = () => {
 
@@ -25,7 +25,7 @@ const setupErrorHandling = () => {
       format: winston.format.simple()
     }));
   }
-}
+};
 module.exports = {
   logger,
   errorLogger,

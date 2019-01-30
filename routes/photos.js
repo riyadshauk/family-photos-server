@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 
-const tokenAuth = require('../helpers/token-auth');
+const tokenAuthFactory = require('../helpers/token-auth-factory');
 const photosHelpers = require('../helpers/photos-helpers');
 const photosMiddlewares = require('../helpers/photos-middlewares');
-const parseLocalFilePath = require('../helpers/photos-helpers').parseLocalFilePath;
+const { parseLocalFilePath } = require('../helpers/photos-helpers');
 
+const factory = new tokenAuthFactory('public');
+const tokenAuth = factory.tokenAuth.bind(factory);
 router.use(tokenAuth); // uses bearer token to secure sensitive / specified API routes
 
 /**

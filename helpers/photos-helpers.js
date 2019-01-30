@@ -3,8 +3,8 @@ const path = require('path');
 const exif = require('exif');
 
 const constants = require('../helpers/constants');
-const errorLogger = require('../helpers/functions').errorLogger;
-const FIFOCache = require('../helpers/data-structures').FIFOCache;
+const { errorLogger } = require('../helpers/functions');
+const { FIFOCache } = require('../helpers/data-structures');
 
 const imageCache = new FIFOCache(10);
 
@@ -79,9 +79,7 @@ const getVideoMIMEType = (filePath) => {
   const videoMIMETypes = Object.keys(constants.videoMIMEType);
   for (let i = 0; i < videoMIMETypes.length; i++) {
     if (ending.includes(videoMIMETypes[i])) {
-      // logger('videoMIMEType[videoMIMETypes[i]]:', videoMIMEType[videoMIMETypes[i]]);
       return constants.videoMIMEType[videoMIMETypes[i]];
-      // return 'video/mp4';
     }
   }
   return '';

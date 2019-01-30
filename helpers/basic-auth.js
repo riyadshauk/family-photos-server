@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const userService = require('./user.service');
 const secretKey = require('./credentials');
-const logger = require('../helpers/functions').logger;
+const { logger } = require('./functions');
+const queryDB = require('./query-db');
 
 async function basicAuth(req, res, next) {
     // check for basic auth header
@@ -22,10 +23,12 @@ async function basicAuth(req, res, next) {
     // generate JWT using secretKey
     const now = new Date();
     const oneDayFromNow = now.setDate(now.getDate() + 1);
-    const token = jwt.sign({ email, password, expirationDate: oneDayFromNow }, secretKey);
+    const userGroup = await queryDB.getUserGroup(email);
+    const token = jwt.sign({ email, password, issueDate: new Date(), expirationDate: oneDayFromNow, userGroup }, secretKey);
 
     // attach token to request object
     req.token = token;
+    req.email = email;
 
     next();
 }

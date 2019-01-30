@@ -1,18 +1,13 @@
 const { Client } = require('pg');
 const logger = require('./functions').logger;
+const { clientCredentials } = require('./constants');
 
 module.exports = {
   authenticate,
 };
 
 async function authenticate({ email, password }) {
-  const client = new Client({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'photodb',
-    password: 'postgres',
-    port: 5432,
-  });
+  const client = new Client(clientCredentials);
   await client.connect();
   try {
     const res = await client.query('SELECT password FROM users WHERE email = $1::text', [email]);
